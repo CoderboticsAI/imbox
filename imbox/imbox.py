@@ -7,6 +7,8 @@ import logging
 
 from imbox.vendors import GmailMessages, hostname_vendorname_dict, name_authentication_string_dict
 
+__all__ = ["Imbox", "Messages"]
+
 logger = logging.getLogger(__name__)
 
 
