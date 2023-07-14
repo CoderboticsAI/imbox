@@ -1,15 +1,38 @@
 import datetime
 import logging
 from imaplib import Time2Internaldate
+from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-def str_encode(value='', encoding=None, errors='strict'):
-    logger.debug("Encode str {value} with encoding {encoding} and errors {errors}".format(
-        value=value,
-        encoding=encoding,
-        errors=errors))
-    return str(value, encoding, errors)
+def str_encode(
+    value: str, encoding: Optional[str] = None, errors: str = "strict"
+) -> str:
+    """
+    Encodes a string with the specified encoding and error handling.
+
+    Args:
+        value: The string to encode.
+        encoding: The name of the encoding to use. If not provided, the default encoding is used.
+        errors: The error handling scheme. Default is 'strict'.
+
+    Returns:
+        The encoded string.
+
+    Raises:
+        UnicodeError: If the string cannot be encoded.
+
+    Examples:
+        >>> str_encode('hello', encoding='utf-8')
+        'hello'
+
+        >>> str_encode('Привет', encoding='utf-8')
+        'Привет'
+    """
+    logger.debug(
+        f"Encode str '{value}' with encoding '{encoding}' and error handling '{errors}'"
+    )
+    return str(value.encode(encoding, errors))
 
 
 def str_decode(value='', encoding=None, errors='strict'):
