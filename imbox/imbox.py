@@ -6,6 +6,8 @@ from imbox.messages import Messages
 import logging
 
 from imbox.vendors import GmailMessages, hostname_vendorname_dict, name_authentication_string_dict
+from typing import Optional
+from imbox.vendors import GmailMessages
 
 logger = logging.getLogger(__name__)
 
