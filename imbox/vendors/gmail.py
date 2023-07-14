@@ -1,5 +1,6 @@
 from imbox.messages import Messages
 from imbox.vendors.helpers import merge_two_dicts
+import imaplib
 
 
 class GmailMessages(Messages):
