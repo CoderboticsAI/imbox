@@ -11,6 +11,7 @@ from email.header import decode_header
 from imbox.utils import str_encode, str_decode
 
 import logging
+from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -68,19 +69,35 @@ def decode_mail_header(value: str, default_charset: str = "us-ascii") -> str:
     return "".join(decoded_headers)
 
 
-def get_mail_addresses(message, header_name):
+def get_mail_addresses(
+    message: email.message.Message, header_name: str
+) -> List[Dict[str, str]]:
     """
-    Retrieve all email addresses from one message header.
+    Retrieve all email addresses from a specified message header.
+
+    Args:
+        message (email.message.Message): The email message.
+        header_name (str): The name of the header to retrieve the email addresses from.
+
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries containing the name and email address.
+
+    Examples:
+        >>> message = email.message_from_string('From: John Doe <johndoe@example.com>\\nTo: Jane Smith <janesmith@example.com>\\nSubject: Test Email\\n\\nHello, World!')
+        >>> get_mail_addresses(message, 'From')
+        [{'name': 'John Doe', 'email': 'johndoe@example.com'}]
+
+        >>> get_mail_addresses(message, 'To')
+        [{'name': 'Jane Smith', 'email': 'janesmith@example.com'}]
     """
-    headers = [h for h in message.get_all(header_name, [])]
+    headers = message.get_all(header_name, [])
     addresses = email.utils.getaddresses(headers)
 
-    for index, (address_name, address_email) in enumerate(addresses):
-        addresses[index] = {'name': decode_mail_header(address_name),
-                            'email': address_email}
-        logger.debug("{} Mail address in message: <{}> {}".format(
-            header_name.upper(), address_name, address_email))
-    return addresses
+    parsed_addresses = []
+    for address_name, address_email in addresses:
+        name = decode_mail_header(address_name)
+        parsed_addresses.append({"name": name, "email": address_email})
+    return parsed_addresses
 
 
 def decode_param(param):
