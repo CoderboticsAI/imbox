@@ -26,28 +26,46 @@ class Struct:
         return str(self.__dict__)
 
 
-def decode_mail_header(value, default_charset='us-ascii'):
+def decode_mail_header(value: str, default_charset: str = "us-ascii") -> str:
     """
-    Decode a header value into a unicode string.
+    Decode a mail header value into a Unicode string.
+
+    Args:
+        value (str): The header value to be decoded.
+        default_charset (str, optional): The default charset to use if the charset is unknown. Defaults to 'us-ascii'.
+
+    Returns:
+        str: The decoded header value as a Unicode string.
+
+    Examples:
+        >>> decode_mail_header("=?utf-8?q?Hello_World?=")
+        'Hello World'
+
+        >>> decode_mail_header("=?iso-8859-1?q?R=C3=A9sum=C3=A9?=")
+        'Résumé'
     """
+
+    def decode_text(text, charset):
+        try:
+            logger.debug(
+                f"Mail header no. {index}: {str_decode(text, charset or 'utf-8', 'replace')} encoding {charset}"
+            )
+            return str_decode(text, charset or default_charset, "replace")
+        except LookupError:
+            # if the charset is unknown, force default
+            return str_decode(text, default_charset, "replace")
+
     try:
         headers = decode_header(value)
     except email.errors.HeaderParseError:
-        return str_decode(str_encode(value, default_charset, 'replace'), default_charset)
-    else:
-        for index, (text, charset) in enumerate(headers):
-            try:
-                logger.debug("Mail header no. {index}: {data} encoding {charset}".format(
-                    index=index,
-                    data=str_decode(text, charset or 'utf-8', 'replace'),
-                    charset=charset))
-                headers[index] = str_decode(text, charset or default_charset,
-                                            'replace')
-            except LookupError:
-                # if the charset is unknown, force default
-                headers[index] = str_decode(text, default_charset, 'replace')
+        return str_decode(
+            str_encode(value, default_charset, "replace"), default_charset
+        )
 
-        return ''.join(headers)
+    decoded_headers = [
+        decode_text(text, charset) for index, (text, charset) in enumerate(headers)
+    ]
+    return "".join(decoded_headers)
 
 
 def get_mail_addresses(message, header_name):
